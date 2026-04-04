@@ -41,6 +41,25 @@ pipelines:
 
 ---
 
+## Write Strategy
+
+Control how data is written to Redis:
+
+```yaml
+      - name: public.users
+        target_name: user
+        write_strategy: upsert       # replace | upsert
+```
+
+| Strategy | Redis Behavior |
+|---|---|
+| `replace` | Delete all keys matching `{key_prefix}*`, then write (default for full) |
+| `upsert` | Write keys directly — `HSET`/`SET` is naturally idempotent, existing keys are overwritten (default for incremental) |
+
+> **Note:** Redis does not support `append` or `merge` strategies. Every write is key-based and naturally idempotent — `upsert` is the default behavior.
+
+---
+
 ## Key Structure and Storage Options
 
 Redis keys are constructed as `{key_prefix}{key_value}`. These are configured via `extra` on the connection:
@@ -93,7 +112,8 @@ Writes are batched using a Redis pipeline (auto-flushed every 1,000 rows). This 
 |---|---|---|---|
 | `name` | string | required | Source table name |
 | `target_name` | string | required | Redis key prefix (used as default `key_prefix`) |
-| `replication_method` | `full` / `incremental` | `full` | `full` deletes existing keys first |
+| `replication_method` | `full` / `incremental` | `full` | Replication strategy |
+| `write_strategy` | string | — | `replace`, `upsert` |
 | `dedup_columns` | list | — | Columns used for `mkpipe_id` hash deduplication |
 | `tags` | list | `[]` | Tags for selective pipeline execution |
 | `pass_on_error` | bool | `false` | Skip table on error instead of failing |
