@@ -56,16 +56,15 @@ class RedisLoader(BaseLoader, variant='redis'):
 
             match strategy:
                 case WriteStrategy.REPLACE:
-                    if self.if_exists != 'append':
-                        pattern = f'{key_prefix}*'
-                        cursor = 0
-                        while True:
-                            cursor, keys = r.scan(cursor=cursor, match=pattern, count=1000)
-                            if keys:
-                                r.delete(*keys)
-                            if cursor == 0:
-                                break
-                        logger.info({'table': target_name, 'status': 'keys_deleted', 'pattern': pattern})
+                    pattern = f'{key_prefix}*'
+                    cursor = 0
+                    while True:
+                        cursor, keys = r.scan(cursor=cursor, match=pattern, count=1000)
+                        if keys:
+                            r.delete(*keys)
+                        if cursor == 0:
+                            break
+                    logger.info({'table': target_name, 'status': 'keys_deleted', 'pattern': pattern})
                 case WriteStrategy.UPSERT:
                     pass
                 case _:

@@ -53,7 +53,7 @@ Control how data is written to Redis:
 
 | Strategy | Redis Behavior |
 |---|---|
-| `replace` | Delete all keys matching `{key_prefix}*`, then write (default for full). Use `if_exists: append` to skip deletion |
+| `replace` | Delete all keys matching `{key_prefix}*`, then write (default for full). With `if_exists: append`: same behavior (delete + write) |
 | `upsert` | Write keys directly — `HSET`/`SET` is naturally idempotent, existing keys are overwritten (default for incremental) |
 
 > **Note:** Redis does not support `append` or `merge` strategies. Every write is key-based and naturally idempotent — `upsert` is the default behavior.
@@ -114,7 +114,7 @@ Writes are batched using a Redis pipeline (auto-flushed every 1,000 rows). This 
 | `target_name` | string | required | Redis key prefix (used as default `key_prefix`) |
 | `replication_method` | `full` / `incremental` | `full` | Replication strategy |
 | `write_strategy` | string | — | `replace`, `upsert` |
-| `if_exists` | string | — | `replace` (delete+write) or `append` (skip deletion). Inherits from settings |
+| `if_exists` | string | — | `replace` (delete+write) or `append` (delete keys+write). Inherits from settings |
 | `dedup_columns` | list | — | Columns used for `mkpipe_id` hash deduplication |
 | `tags` | list | `[]` | Tags for selective pipeline execution |
 | `pass_on_error` | bool | `false` | Skip table on error instead of failing |
